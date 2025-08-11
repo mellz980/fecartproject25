@@ -29,8 +29,13 @@
   <div id="label-container"></div>
 
   <script>
-    const URL = "https://mellz980.github.io/fecartproject25/"; // pasta do modelo
-    let model, webcam, labelContainer, maxPredictions;
+  const URL = "https://mellz980.github.io/fecartproject25/modelo/"; // <- Agora carrega de uma subpasta
+  let model, webcam, labelContainer, maxPredictions;
+  ...
+</script>
+
+  <script>
+    
 
     async function init() {
       const modelURL = URL + "model.json";
