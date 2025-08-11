@@ -1,8 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Teachable Machine - Reconhecimento</title>
+
+  <!-- Carregando as bibliotecas necessárias -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+
+  <style>
+    #start-btn {
+      background-color: #00aaff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    #start-btn:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
   <h1>Teachable Machine Image Model</h1>
@@ -10,16 +28,13 @@
   <div id="webcam-container"></div>
   <div id="label-container"></div>
 
-  <!-- Bibliotecas necessárias -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
-
   <script>
     async function init() {
       const startBtn = document.getElementById('start-btn');
       startBtn.disabled = true;
       startBtn.innerText = 'Carregando...';
 
+      // Verifica se a biblioteca foi carregada
       if (typeof tmImage === 'undefined') {
         alert("Erro: tmImage não foi definido");
         startBtn.disabled = false;
@@ -28,7 +43,6 @@
       }
 
       try {
-        // Caminho para os arquivos na raiz do repositório
         const URL = "https://mellz980.github.io/projetofecart2025/";
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
@@ -39,7 +53,10 @@
         const webcam = new tmImage.Webcam(200, 200, true);
         await webcam.setup();
         await webcam.play();
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+        const webcamContainer = document.getElementById("webcam-container");
+        webcamContainer.innerHTML = "";  // Limpa antes de adicionar
+        webcamContainer.appendChild(webcam.canvas);
 
         const labelContainer = document.getElementById("label-container");
         labelContainer.innerHTML = "";
@@ -69,3 +86,4 @@
   </script>
 </body>
 </html>
+
