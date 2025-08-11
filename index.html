@@ -40,10 +40,11 @@
   <h1>Teste do Teachable Machine</h1>
 
   <!-- Botão de carregando -->
-  <button id="loading-button">Carregando modelo e webcam...</button>
-
-  <div id="webcam-container"></div>
-  <div id="label-container"></div>
+    <script>
+    async function init() {
+      const startBtn = document.getElementById('start-btn');
+      startBtn.disabled = true;
+      startBtn.innerText = 'Carregando...';
 
   <script>
     const URL = "https://mellz980.github.io/fecartproject25/modelo/";
