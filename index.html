@@ -29,13 +29,10 @@
   <div id="label-container"></div>
 
   <script>
-  const URL = "https://mellz980.github.io/fecartproject25/modelo/"; // <- Agora carrega de uma subpasta
-  let model, webcam, labelContainer, maxPredictions;
-  ...
-</script>
+    // Caminho para a subpasta onde estão model.json e metadata.json
+    const URL = "https://mellz980.github.io/fecartproject25/modelo/";
 
-  <script>
-    
+    let model, webcam, labelContainer, maxPredictions;
 
     async function init() {
       const modelURL = URL + "model.json";
@@ -55,7 +52,7 @@
       // Mostrar webcam na página
       document.getElementById("webcam-container").appendChild(webcam.canvas);
       labelContainer = document.getElementById("label-container");
-      for (let i = 0; i < maxPredictions; i++) { // criar espaços para labels
+      for (let i = 0; i < maxPredictions; i++) {
         labelContainer.appendChild(document.createElement("div"));
       }
     }
