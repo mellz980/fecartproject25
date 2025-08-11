@@ -21,15 +21,31 @@
       margin-top: 20px;
       font-size: 18px;
     }
+    #loading-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: default;
+    }
+    #loading-button.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <h1>Teste do Teachable Machine</h1>
+
+  <!-- Botão de carregando -->
+  <button id="loading-button">Carregando modelo e webcam...</button>
+
   <div id="webcam-container"></div>
   <div id="label-container"></div>
 
   <script>
-    // Caminho para a subpasta onde estão model.json e metadata.json
     const URL = "https://mellz980.github.io/fecartproject25/modelo/";
 
     let model, webcam, labelContainer, maxPredictions;
@@ -38,27 +54,38 @@
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
 
-      // Carregar o modelo e metadados
-      model = await tmImage.load(modelURL, metadataURL);
-      maxPredictions = model.getTotalClasses();
+      // Mostrar botão de carregando
+      const loadingButton = document.getElementById("loading-button");
 
-      // Configurar a webcam
-      const flip = true; // espelhar a imagem
-      webcam = new tmImage.Webcam(400, 400, flip);
-      await webcam.setup(); // pedir permissão
-      await webcam.play();
-      window.requestAnimationFrame(loop);
+      try {
+        // Carregar o modelo e metadados
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
 
-      // Mostrar webcam na página
-      document.getElementById("webcam-container").appendChild(webcam.canvas);
-      labelContainer = document.getElementById("label-container");
-      for (let i = 0; i < maxPredictions; i++) {
-        labelContainer.appendChild(document.createElement("div"));
+        // Configurar a webcam
+        const flip = true;
+        webcam = new tmImage.Webcam(400, 400, flip);
+        await webcam.setup();
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // Esconder botão de carregando após inicialização
+        loadingButton.classList.add("hidden");
+
+        // Mostrar webcam na página
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) {
+          labelContainer.appendChild(document.createElement("div"));
+        }
+      } catch (error) {
+        loadingButton.textContent = "Erro ao carregar o modelo ou webcam.";
+        console.error(error);
       }
     }
 
     async function loop() {
-      webcam.update(); // atualizar a imagem
+      webcam.update();
       await predict();
       window.requestAnimationFrame(loop);
     }
