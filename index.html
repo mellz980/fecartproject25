@@ -1,106 +1,71 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Teachable Machine com Webcam</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    #webcam-container {
-      margin-top: 20px;
-    }
-    #label-container {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    #loading-button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: default;
-    }
-    #loading-button.hidden {
-      display: none;
-    }
-  </style>
+  <title>Teachable Machine - Reconhecimento</title>
 </head>
 <body>
-  <h1>Teste do Teachable Machine</h1>
+  <h1>Teachable Machine Image Model</h1>
+  <button id="start-btn" onclick="init()">Start</button>
+  <div id="webcam-container"></div>
+  <div id="label-container"></div>
 
-  <!-- Botão de carregando -->
-    <script>
+  <!-- Bibliotecas necessárias -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+
+  <script>
     async function init() {
       const startBtn = document.getElementById('start-btn');
       startBtn.disabled = true;
       startBtn.innerText = 'Carregando...';
 
-  <script>
-    const URL = "https://mellz980.github.io/fecartproject25/modelo/";
-
-    let model, webcam, labelContainer, maxPredictions;
-
-    async function init() {
-      const modelURL = URL + "model.json";
-      const metadataURL = URL + "metadata.json";
-
-      // Mostrar botão de carregando
-      const loadingButton = document.getElementById("loading-button");
+      if (typeof tmImage === 'undefined') {
+        alert("Erro: tmImage não foi definido");
+        startBtn.disabled = false;
+        startBtn.innerText = 'Start';
+        return;
+      }
 
       try {
-        // Carregar o modelo e metadados
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+        // Caminho para os arquivos na raiz do repositório
+        const URL = "https://mellz980.github.io/projetofecart2025/";
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
 
-        // Configurar a webcam
-        const flip = true;
-        webcam = new tmImage.Webcam(400, 400, flip);
+        const model = await tmImage.load(modelURL, metadataURL);
+        const maxPredictions = model.getTotalClasses();
+
+        const webcam = new tmImage.Webcam(200, 200, true);
         await webcam.setup();
         await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        // Esconder botão de carregando após inicialização
-        loadingButton.classList.add("hidden");
-
-        // Mostrar webcam na página
         document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
+
+        const labelContainer = document.getElementById("label-container");
+        labelContainer.innerHTML = "";
         for (let i = 0; i < maxPredictions; i++) {
           labelContainer.appendChild(document.createElement("div"));
         }
-      } catch (error) {
-        loadingButton.textContent = "Erro ao carregar o modelo ou webcam.";
-        console.error(error);
+
+        async function loop() {
+          webcam.update();
+          const prediction = await model.predict(webcam.canvas);
+          for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+              prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
+            labelContainer.childNodes[i].innerText = classPrediction;
+          }
+          requestAnimationFrame(loop);
+        }
+
+        loop();
+        startBtn.innerText = 'Rodando';
+      } catch (err) {
+        alert("Erro ao carregar modelo: " + err.message);
+        startBtn.disabled = false;
+        startBtn.innerText = 'Start';
       }
     }
-
-    async function loop() {
-      webcam.update();
-      await predict();
-      window.requestAnimationFrame(loop);
-    }
-
-    async function predict() {
-      const prediction = await model.predict(webcam.canvas);
-      for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-          prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
-        labelContainer.childNodes[i].innerHTML = classPrediction;
-      }
-    }
-
-    init();
   </script>
 </body>
 </html>
