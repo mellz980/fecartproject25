@@ -4,44 +4,138 @@
   <meta charset="UTF-8" />
   <title>Teachable Machine - Reconhecimento</title>
 
- <!-- TensorFlow.js -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <!-- Teachable Machine Image -->
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
 
-<!-- Teachable Machine Image -->
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
-
+  <!-- Google Fonts divertida -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    #start-btn {
-      background-color: #00aaff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+      color: #333;
     }
+
+    h1 {
+      font-size: 2.2em;
+      color: #4b0082;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #start-btn {
+      background: linear-gradient(135deg, #ff7eb3, #ff758c);
+      border: none;
+      border-radius: 30px;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #start-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #ff5c9e, #ff4181);
+    }
+
     #start-btn:disabled {
-      background-color: #999;
+      background-color: #bbb;
       cursor: not-allowed;
+      transform: none;
+    }
+
+    #webcam-container {
+      margin-top: 20px;
+      border: 4px dashed #00bcd4;
+      padding: 10px;
+      border-radius: 20px;
+      background-color: #e0f7fa;
+    }
+
+    canvas {
+      border-radius: 10px;
+    }
+
+    #label-container {
+      margin-top: 20px;
+      font-size: 1.2em;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #label-container div {
+      background-color: #fff3cd;
+      padding: 10px 20px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s;
+    }
+
+    #label-container div:hover {
+      background-color: #ffeeba;
+    }
+
+    /* Ícone de loading */
+    .loading-icon {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4b0082;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <h1>Teachable Machine Image Model</h1>
-  <button id="start-btn" onclick="init()">Start</button>
+  <h1>Reconhecimento por Imagem 🌈</h1>
+  <button id="start-btn" onclick="init()">
+    Iniciar
+  </button>
   <div id="webcam-container"></div>
   <div id="label-container"></div>
+
+  <!-- Áudio de clique -->
+  <audio id="click-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f95c602d48.mp3?filename=click-124467.mp3" preload="auto"></audio>
 
   <script>
     async function init() {
       const startBtn = document.getElementById('start-btn');
+      const clickSound = document.getElementById('click-sound');
+
+      // Toca o som de clique
+      clickSound.play();
+
+      // Desabilita botão e mostra ícone de loading
       startBtn.disabled = true;
-      startBtn.innerText = 'Carregando...';
+      startBtn.innerHTML = `<div class="loading-icon"></div> Carregando...`;
 
       // Verifica se a biblioteca foi carregada
       if (typeof tmImage === 'undefined') {
         alert("Erro: tmImage não foi definido");
         startBtn.disabled = false;
-        startBtn.innerText = 'Start';
+        startBtn.innerHTML = "Iniciar";
         return;
       }
 
@@ -58,7 +152,7 @@
         await webcam.play();
 
         const webcamContainer = document.getElementById("webcam-container");
-        webcamContainer.innerHTML = "";  // Limpa antes de adicionar
+        webcamContainer.innerHTML = "";
         webcamContainer.appendChild(webcam.canvas);
 
         const labelContainer = document.getElementById("label-container");
@@ -79,14 +173,15 @@
         }
 
         loop();
-        startBtn.innerText = 'Rodando';
+        startBtn.innerHTML = 'Rodando 🎥';
       } catch (err) {
         alert("Erro ao carregar modelo: " + err.message);
         startBtn.disabled = false;
-        startBtn.innerText = 'Start';
+        startBtn.innerHTML = "Iniciar";
       }
     }
   </script>
 </body>
 </html>
+
 
