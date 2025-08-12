@@ -2,152 +2,291 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Teachable Machine - Reconhecimento</title>
+  <title>Projeto Reconhecimento por Imagem</title>
 
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
-  <!-- Teachable Machine Image -->
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
 
-  <!-- Google Fonts divertida -->
+  <!-- Fonte moderna -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    :root {
+      --fundo: #f9f9f9;
+      --titulo: #1f3c88;
+      --botao: #ff6f3c;
+      --botao-hover: #ffd93b;
+      --label-text: #2ad1a2;
+      --borda: #c7c7c7;
+      --texto: #333;
+    }
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+    body {
       font-family: 'Fredoka', sans-serif;
-      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      background: var(--fundo);
+      color: var(--texto);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding-top: 40px;
-      color: #333;
+      padding: 20px 20px 40px;
     }
-
-    h1 {
-      font-size: 2.2em;
-      color: #4b0082;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    #start-btn {
-      background: linear-gradient(135deg, #ff7eb3, #ff758c);
-      border: none;
-      border-radius: 30px;
-      padding: 12px 30px;
-      font-size: 1.1em;
+    header {
+      background: var(--titulo);
+      width: 100%;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       color: white;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.3s;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      font-weight: 700;
+      font-size: 1.8em;
+      border-radius: 0 0 25px 25px;
+      box-shadow: 0 8px 15px rgba(31,60,136,0.7);
+      user-select: none;
+      margin-bottom: 30px;
+    }
+    .hero-section {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 12px 25px rgba(31,60,136,0.15);
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 40px;
     }
-
-    #start-btn:hover:not(:disabled) {
+    .hero-text {
+      flex: 1;
+    }
+    .hero-text h2 {
+      font-size: 2.8em;
+      color: var(--titulo);
+      margin-bottom: 15px;
+    }
+    .hero-text h2 span {
+      color: var(--botao-hover);
+    }
+    .hero-text p {
+      font-size: 1.3em;
+      color: var(--texto);
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    .hero-main-image {
+      max-width: 400px;
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 25px;
+      box-shadow: 0 12px 25px rgba(31,60,136,0.2);
+      flex-shrink: 0;
+    }
+    .start-btn {
+      background: var(--botao);
+      color: white;
+      border: none;
+      padding: 18px 45px;
+      font-size: 1.3em;
+      border-radius: 35px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 8px 15px rgba(255,111,60,0.6);
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-top: 10px;
+    }
+    .start-btn:hover {
+      background: var(--botao-hover);
+      color: var(--titulo);
       transform: scale(1.05);
-      background: linear-gradient(135deg, #ff5c9e, #ff4181);
+      box-shadow: 0 12px 25px rgba(255,217,59,0.6);
     }
-
-    #start-btn:disabled {
-      background-color: #bbb;
-      cursor: not-allowed;
-      transform: none;
+    .image-carousel {
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 20px;
+      box-shadow: 0 8px 15px rgba(31,60,136,0.15);
+      margin: 40px auto 0;
+      background: #fff;
     }
-
+    .image-carousel-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      will-change: transform;
+    }
+    .image-carousel img {
+      width: 200px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 15px;
+      margin: 10px;
+      flex-shrink: 0;
+      box-shadow: 0 6px 10px rgba(31,60,136,0.12);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s ease;
+    }
+    .image-carousel img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(31,60,136,0.3);
+    }
+    #modelo {
+      display: none;
+      margin-top: 50px;
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 12px 25px rgba(31,60,136,0.1);
+      color: var(--texto);
+    }
+    #modelo.active {
+      display: block;
+    }
+    #modelo h2 {
+      font-size: 2em;
+      margin-bottom: 25px;
+      color: var(--titulo);
+      text-align: center;
+    }
+    .webcam-section {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
     #webcam-container {
-      margin-top: 20px;
-      border: 4px dashed #00bcd4;
+      border: 3px dashed var(--label-text);
       padding: 10px;
       border-radius: 20px;
-      background-color: #e0f7fa;
+      background-color: #e6f9f6;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(42,209,162,0.3);
     }
-
     canvas {
-      border-radius: 10px;
+      border-radius: 15px;
+      width: 560px !important;
+      height: 360px !important;
+      display: block;
     }
-
     #label-container {
-      margin-top: 20px;
       font-size: 1.2em;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
+      text-align: left;
+      max-width: 280px;
+      color: var(--label-text);
+      font-weight: 600;
+      padding-top: 4px;
+      user-select: none;
     }
-
     #label-container div {
-      background-color: #fff3cd;
-      padding: 10px 20px;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: #f0f9f4;
+      padding: 12px 18px;
+      border-radius: 25px;
+      box-shadow: 0 3px 12px rgba(42,209,162,0.3);
       transition: background 0.3s;
+      cursor: default;
     }
-
-    #label-container div:hover {
-      background-color: #ffeeba;
-    }
-
-    /* Ícone de loading */
     .loading-icon {
       border: 4px solid #f3f3f3;
-      border-top: 4px solid #4b0082;
+      border-top: 4px solid var(--botao);
       border-radius: 50%;
       width: 18px;
       height: 18px;
       animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    @media (max-width: 768px) {
+      .hero-section { flex-direction: column; text-align: center; }
+      .hero-main-image { height: 200px; margin-bottom: 20px; }
+      #label-container { max-width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      #label-container div { flex: 1 1 calc(50% - 12px); text-align: center; }
+      .webcam-section { flex-direction: column; align-items: center; }
+      canvas { width: 100% !important; height: auto !important; }
+    }
   </style>
 </head>
 <body>
-  <h1>Reconhecimento por Imagem 🌈</h1>
-  <button id="start-btn" onclick="init()">
-    Iniciar
-  </button>
-  <div id="webcam-container"></div>
-  <div id="label-container"></div>
 
-  <!-- Áudio de clique -->
+  <header>Reconhecimento IA</header>
+
+  <section class="hero-section" id="inicio">
+    <div class="hero-text">
+      <h2>Sinta o poder da <span>inteligência artificial</span></h2>
+      <p>Nosso projeto usa a Teachable Machine para reconhecer imagens em tempo real usando sua webcam. Ideal para educação, aprendizado e diversão.</p>
+      <button class="start-btn" id="start-btn" onclick="init()">Começar 🚀</button>
+    </div>
+    <img src="https://cdn.pixabay.com/photo/2023/04/06/15/11/artificial-intelligence-7904390_1280.jpg" alt="Imagem Principal IA" class="hero-main-image" />
+  </section>
+
+  <section class="image-carousel">
+    <div class="image-carousel-track" id="carousel-track">
+      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698697_640.jpg" alt="Circo 1" />
+      <img src="https://cdn.pixabay.com/photo/2018/02/20/08/47/circus-3169640_640.jpg" alt="Circo 2" />
+      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698688_640.jpg" alt="Circo 3" />
+      <img src="https://cdn.pixabay.com/photo/2016/10/12/20/42/clown-1736049_640.jpg" alt="Circo 4" />
+      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698699_640.jpg" alt="Circo 5" />
+    </div>
+  </section>
+
+  <main id="modelo">
+    <h2>Reconhecimento em Ação 🎥</h2>
+    <div class="webcam-section">
+      <div id="webcam-container"></div>
+      <div id="label-container"></div>
+    </div>
+    <div id="instruction" style="margin-top:20px; font-size:1.3em; color: var(--titulo);"></div>
+  </main>
+
   <audio id="click-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f95c602d48.mp3?filename=click-124467.mp3" preload="auto"></audio>
 
   <script>
+    const clickSound = document.getElementById('click-sound');
+    const startBtn = document.getElementById('start-btn');
+    const modeloSection = document.getElementById('modelo');
+    const inicioSection = document.getElementById('inicio');
+    const instruction = document.getElementById('instruction');
+    const track = document.getElementById('carousel-track');
+
+    const emotionsToTest = ["alegria", "tristeza", "raiva", "nojo", "medo"];
+    let currentEmotionIndex = 0;
+    let score = 0;
+    let startTime;
+
     async function init() {
-      const startBtn = document.getElementById('start-btn');
-      const clickSound = document.getElementById('click-sound');
-
-      // Toca o som de clique
       clickSound.play();
-
-      // Desabilita botão e mostra ícone de loading
       startBtn.disabled = true;
-      startBtn.innerHTML = `<div class="loading-icon"></div> Carregando...`;
+      startBtn.innerHTML = `<span class="loading-icon"></span> Carregando...`;
 
-      // Verifica se a biblioteca foi carregada
       if (typeof tmImage === 'undefined') {
-        alert("Erro: tmImage não foi definido");
+        instruction.textContent = "Erro: modelo não disponível.";
         startBtn.disabled = false;
-        startBtn.innerHTML = "Iniciar";
+        startBtn.innerHTML = "Começar 🚀";
         return;
       }
 
       try {
         const URL = "https://mellz980.github.io/projetofecart2025/";
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
-
-        const model = await tmImage.load(modelURL, metadataURL);
-        const maxPredictions = model.getTotalClasses();
-
-        const webcam = new tmImage.Webcam(200, 200, true);
+        const model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+        const webcam = new tmImage.Webcam(560, 360, true);
         await webcam.setup();
         await webcam.play();
 
@@ -157,31 +296,83 @@
 
         const labelContainer = document.getElementById("label-container");
         labelContainer.innerHTML = "";
-        for (let i = 0; i < maxPredictions; i++) {
-          labelContainer.appendChild(document.createElement("div"));
-        }
+        Array.from({ length: model.getTotalClasses() }).forEach(() => labelContainer.appendChild(document.createElement("div")));
 
-        async function loop() {
-          webcam.update();
-          const prediction = await model.predict(webcam.canvas);
-          for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-              prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
-            labelContainer.childNodes[i].innerText = classPrediction;
-          }
-          requestAnimationFrame(loop);
-        }
+        startTime = Date.now();
+        inicioSection.style.display = "none";
+        modeloSection.classList.add('active');
 
-        loop();
-        startBtn.innerHTML = 'Rodando 🎥';
+        instruction.textContent = "Prepare-se! Vamos começar...";
+        await new Promise(r => setTimeout(r, 1000));
+        runEmotionTest(webcam, model, labelContainer);
+
       } catch (err) {
-        alert("Erro ao carregar modelo: " + err.message);
+        instruction.textContent = `Erro: ${err.message}`;
         startBtn.disabled = false;
-        startBtn.innerHTML = "Iniciar";
+        startBtn.innerHTML = "Começar 🚀";
       }
     }
+
+    async function runEmotionTest(webcam, model, labelContainer) {
+      if (currentEmotionIndex >= emotionsToTest.length) {
+        const totalTime = Math.floor((Date.now() - startTime) / 1000);
+        showFinalScreen(score, totalTime);
+        return;
+      }
+
+      const expected = emotionsToTest[currentEmotionIndex];
+      instruction.textContent = `Mostre: ${expected.toUpperCase()}`;
+      let countdown = 3;
+
+      const countDiv = document.createElement("div");
+      labelContainer.innerHTML = "";
+      labelContainer.appendChild(countDiv);
+
+      const countInterval = setInterval(() => {
+        countDiv.textContent = `Capturando em ${countdown}…`;
+        countdown--;
+        if (countdown < 0) clearInterval(countInterval);
+      }, 1000);
+
+      await new Promise(r => setTimeout(r, 4000));
+
+      webcam.update();
+      const prediction = await model.predict(webcam.canvas);
+
+      labelContainer.innerHTML = "";
+      prediction.forEach(p => labelContainer.innerHTML += `<div>${p.className}: ${(p.probability*100).toFixed(2)}%</div>`);
+
+      const correct = prediction.some(p => p.className.toLowerCase() === expected && p.probability >= 0.8);
+      instruction.textContent = correct 
+        ? `✅ "${expected}" reconhecida! +200 pontos.` 
+        : `❌ "${expected}" não reconhecida.`;
+
+      if (correct) score += 200;
+      currentEmotionIndex++;
+      setTimeout(() => runEmotionTest(webcam, model, labelContainer), 2000);
+    }
+
+    function showFinalScreen(score, time) {
+      document.body.innerHTML = `
+        <header>Resultado Final 🎉</header>
+        <main style="padding:50px; text-align:center;">
+          <h2>Parabéns! Você concluiu.</h2>
+          <p><strong>Pontuação:</strong> ${score} pontos</p>
+          <p><strong>Tempo:</strong> ${time} segundos</p>
+          <p>Obrigado por participar do projeto!</p>
+          <button onclick="location.reload()" class="start-btn" style="margin-top:30px;">Refazer Teste 🔁</button>
+        </main>`;
+    }
+
+    let idx = 0;
+    function slideCarousel() {
+      idx = (idx + 1) % track.children.length;
+      track.style.transform = `translateX(${-idx * 220}px)`;
+    }
+    setInterval(slideCarousel, 3000);
   </script>
 </body>
 </html>
+
 
 
