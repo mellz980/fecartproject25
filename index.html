@@ -343,8 +343,8 @@
       prediction.forEach(p => labelContainer.innerHTML += `<div>${p.className}: ${(p.probability*100).toFixed(2)}%</div>`);
 
       const correct = prediction.some(p => p.className.toLowerCase() === expected && p.probability >= 0.8);
-      instruction.textContent = correct 
-        ? `✅ "${expected}" reconhecida! +200 pontos.` 
+      instruction.textContent = correct
+        ? `✅ "${expected}" reconhecida! +200 pontos.`
         : `❌ "${expected}" não reconhecida.`;
 
       if (correct) score += 200;
@@ -373,6 +373,7 @@
   </script>
 </body>
 </html>
+
 
 
 
