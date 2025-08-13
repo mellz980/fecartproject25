@@ -12,232 +12,221 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --fundo: #f9f9f9;
-      --titulo: #1f3c88;
-      --botao: #ff6f3c;
-      --botao-hover: #ffd93b;
-      --label-text: #2ad1a2;
-      --borda: #c7c7c7;
-      --texto: #333;
+    :root{
+      /* Paleta profissional + divertida */
+      --bg-1:#f6f8fc;
+      --bg-2:#eef1f6;
+      --card:#ffffff;
+      --title:#2979ff;         /* azul vibrante, confiável */
+      --accent:#ff7043;        /* laranja suave, divertido */
+      --accent-hover:#ffb300;  /* amarelo quente no hover */
+      --positive:#43a047;      /* verde para labels/êxito */
+      --text:#2f2f2f;
+      --muted:#6b7280;
+      --ring: rgba(41,121,255,.25);
+      --shadow: 0 10px 25px rgba(16,24,40,.08);
+      --shadow-strong: 0 18px 35px rgba(16,24,40,.14);
+      --radius: 18px;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
+    body{
+      font-family:'Fredoka',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, #ffffff 0%, transparent 60%),
+        radial-gradient(1000px 600px at 110% 10%, #ffffff 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      padding: 24px 20px 48px;
+      display:flex; flex-direction:column; align-items:center;
     }
-    body {
-      font-family: 'Fredoka', sans-serif;
-      background: var(--fundo);
-      color: var(--texto);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 20px 40px;
+
+    /* Header Pro com barra superior */
+    header{
+      width:100%;
+      max-width:1100px;
+      background:var(--card);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow);
+      padding: 18px 28px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:16px; z-index:10;
     }
-    header {
-      background: var(--titulo);
-      width: 100%;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-weight: 700;
-      font-size: 1.8em;
-      border-radius: 0 0 25px 25px;
-      box-shadow: 0 8px 15px rgba(31,60,136,0.7);
-      user-select: none;
-      margin-bottom: 30px;
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      font-weight:700; font-size:1.25rem; color:var(--title);
+      letter-spacing:.2px;
     }
-    .hero-section {
-      background: white;
-      border-radius: 25px;
-      box-shadow: 0 12px 25px rgba(31,60,136,0.15);
+    .brand .dot{
+      width:12px; height:12px; border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),var(--title));
+      box-shadow:0 0 0 6px var(--ring);
+    }
+    .badge{
+      font-size:.85rem; color:#0f172a;
+      background:linear-gradient(135deg,#e8f0ff,#fff7e6);
+      padding:6px 12px; border-radius:999px; border:1px solid #e5e7eb;
+    }
+
+    /* Hero */
+    .hero-section{
+      margin-top:20px;
+      width:100%; max-width:1100px;
+      background:var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       padding: 40px;
-      max-width: 900px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 40px;
+      display:flex; gap:40px; align-items:center;
     }
-    .hero-text {
-      flex: 1;
+    .hero-text{ flex:1; }
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:.9rem; color:var(--muted); margin-bottom:10px;
     }
-    .hero-text h2 {
-      font-size: 2.8em;
-      color: var(--titulo);
-      margin-bottom: 15px;
+    .eyebrow .ping{
+      width:8px; height:8px; border-radius:999px; background:var(--accent);
+      box-shadow:0 0 0 6px rgba(255,112,67,.18);
     }
-    .hero-text h2 span {
-      color: var(--botao-hover);
+    .hero-text h1{
+      font-size:2.4rem; line-height:1.15; color:#0b1a34; margin-bottom:12px;
     }
-    .hero-text p {
-      font-size: 1.3em;
-      color: var(--texto);
-      margin-bottom: 30px;
-      line-height: 1.5;
+    .hero-text h1 span{ color:var(--title); }
+    .hero-text p{
+      font-size:1.1rem; color:#334155; margin-bottom:20px;
     }
-    .hero-main-image {
-      max-width: 400px;
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-      border-radius: 25px;
-      box-shadow: 0 12px 25px rgba(31,60,136,0.2);
-      flex-shrink: 0;
+    .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+    .start-btn{
+      background:var(--accent); color:#fff; border:none;
+      padding:14px 28px; font-size:1.05rem; font-weight:700;
+      border-radius: 999px; cursor:pointer;
+      box-shadow: var(--shadow);
+      transition: transform .18s ease, box-shadow .18s ease, background .25s ease;
     }
-    .start-btn {
-      background: var(--botao);
-      color: white;
-      border: none;
-      padding: 18px 45px;
-      font-size: 1.3em;
-      border-radius: 35px;
-      cursor: pointer;
-      font-weight: 700;
-      box-shadow: 0 8px 15px rgba(255,111,60,0.6);
-      transition: background 0.3s ease, transform 0.2s ease;
-      margin-top: 10px;
+    .start-btn:hover{ background:var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-strong); }
+    .ghost-btn{
+      background:transparent; color:var(--title);
+      border:2px solid rgba(41,121,255,.25);
+      padding:12px 20px; border-radius: 999px; font-weight:700; cursor:pointer;
+      transition: border-color .25s ease, transform .18s ease;
     }
-    .start-btn:hover {
-      background: var(--botao-hover);
-      color: var(--titulo);
-      transform: scale(1.05);
-      box-shadow: 0 12px 25px rgba(255,217,59,0.6);
+    .ghost-btn:hover{ border-color: var(--title); transform: translateY(-1px); }
+
+    .hero-main-image{
+      max-width:420px; width:100%; height:280px; object-fit:cover;
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow-strong);
+      outline: 3px solid rgba(41,121,255,.08);
     }
-    .image-carousel {
-      display: flex;
-      overflow: hidden;
-      width: 100%;
-      max-width: 900px;
-      border-radius: 20px;
-      box-shadow: 0 8px 15px rgba(31,60,136,0.15);
-      margin: 40px auto 0;
-      background: #fff;
+
+    /* Carrossel */
+    .image-carousel{
+      width:100%; max-width:1100px; margin:26px auto 0;
+      background:var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow:hidden;
+      padding:16px;
     }
-    .image-carousel-track {
-      display: flex;
-      transition: transform 0.5s ease-in-out;
-      will-change: transform;
+    .image-carousel-track{
+      display:flex; gap:12px; transition: transform .5s ease; will-change:transform;
     }
-    .image-carousel img {
-      width: 200px;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 15px;
-      margin: 10px;
-      flex-shrink: 0;
-      box-shadow: 0 6px 10px rgba(31,60,136,0.12);
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.3s ease;
+    .image-carousel img{
+      width:220px; height:140px; object-fit:cover; border-radius:14px;
+      box-shadow: 0 6px 18px rgba(13, 31, 64, .10);
+      border:1px solid #e8eaee;
+      transition: transform .35s ease, box-shadow .35s ease, outline-color .25s ease, filter .35s ease;
+      outline:3px solid transparent;
     }
-    .image-carousel img:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 20px rgba(31,60,136,0.3);
+    .image-carousel img:hover{
+      transform: translateY(-4px) rotate(-.6deg) scale(1.03);
+      box-shadow: 0 14px 28px rgba(13, 31, 64, .18);
+      outline-color: rgba(255,179,0,.25);
+      filter: saturate(1.1);
     }
-    #modelo {
-      display: none;
-      margin-top: 50px;
-      max-width: 900px;
-      width: 100%;
-      background: white;
-      border-radius: 25px;
-      padding: 30px;
-      box-shadow: 0 12px 25px rgba(31,60,136,0.1);
-      color: var(--texto);
+
+    /* Bloco do modelo */
+    #modelo{
+      display:none; margin-top:28px;
+      width:100%; max-width:1100px; background:var(--card);
+      border-radius: var(--radius); padding:28px; box-shadow: var(--shadow);
     }
-    #modelo.active {
-      display: block;
+    #modelo.active{ display:block; }
+    #modelo h2{
+      font-size:1.6rem; color:#0b1a34; margin-bottom:18px; text-align:center;
     }
-    #modelo h2 {
-      font-size: 2em;
-      margin-bottom: 25px;
-      color: var(--titulo);
-      text-align: center;
+    .webcam-section{
+      display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start;
     }
-    .webcam-section {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      flex-wrap: wrap;
-      align-items: flex-start;
+    #webcam-container{
+      border:2px dashed rgba(67,160,71,.45);
+      padding:12px; border-radius:16px; background: #f3faf4;
+      box-shadow: 0 8px 20px rgba(67,160,71,.10);
     }
-    #webcam-container {
-      border: 3px dashed var(--label-text);
-      padding: 10px;
-      border-radius: 20px;
-      background-color: #e6f9f6;
-      flex-shrink: 0;
-      box-shadow: 0 8px 20px rgba(42,209,162,0.3);
+    canvas{
+      border-radius:14px; width:560px !important; height:360px !important; display:block;
+      box-shadow: 0 10px 24px rgba(16,24,40,.10);
     }
-    canvas {
-      border-radius: 15px;
-      width: 560px !important;
-      height: 360px !important;
-      display: block;
+    #label-container{
+      min-width:260px; max-width:320px;
+      display:flex; flex-direction:column; gap:12px; padding-top:6px;
+      color:#0f5132;
     }
-    #label-container {
-      font-size: 1.2em;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      text-align: left;
-      max-width: 280px;
-      color: var(--label-text);
-      font-weight: 600;
-      padding-top: 4px;
-      user-select: none;
+    #label-container div{
+      background:#eef8f0; color:#0b5132; border:1px solid #cfe9d5;
+      padding:12px 14px; border-radius:14px; font-weight:600; letter-spacing:.2px;
+      box-shadow: 0 2px 8px rgba(16,24,40,.06);
     }
-    #label-container div {
-      background-color: #f0f9f4;
-      padding: 12px 18px;
-      border-radius: 25px;
-      box-shadow: 0 3px 12px rgba(42,209,162,0.3);
-      transition: background 0.3s;
-      cursor: default;
+
+    #instruction{
+      margin-top:18px; font-size:1.1rem; color:#0b1a34; text-align:center;
+      background:linear-gradient(135deg,#e8f0ff,#fff);
+      border:1px solid #e6ebf5; padding:12px 16px; border-radius:12px;
+      box-shadow: 0 6px 18px rgba(16,24,40,.06);
     }
-    .loading-icon {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid var(--botao);
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
+
+    /* Loading */
+    .loading-icon{
+      border:4px solid #eef2ff; border-top:4px solid var(--accent);
+      border-radius:50%; width:18px; height:18px; animation:spin 1s linear infinite;
+      display:inline-block; vertical-align:middle; margin-right:8px;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes spin{ 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+    /* Responsividade */
+    @media (max-width: 900px){
+      .hero-section{ flex-direction:column; text-align:center; padding:28px; }
+      .hero-main-image{ height:220px; }
     }
-    @media (max-width: 768px) {
-      .hero-section { flex-direction: column; text-align: center; }
-      .hero-main-image { height: 200px; margin-bottom: 20px; }
-      #label-container { max-width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
-      #label-container div { flex: 1 1 calc(50% - 12px); text-align: center; }
-      .webcam-section { flex-direction: column; align-items: center; }
-      canvas { width: 100% !important; height: auto !important; }
+    @media (max-width: 640px){
+      canvas{ width:100% !important; height:auto !important; }
+      .image-carousel img{ width:180px; height:120px; }
     }
   </style>
 </head>
 <body>
 
-  <header>Reconhecimento IA</header>
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      Reconhecimento IA
+    </div>
+    <div class="badge">Aprender se divertindo 🎯</div>
+  </header>
 
   <section class="hero-section" id="inicio">
     <div class="hero-text">
-      <h2>Sinta o poder da <span>inteligência artificial</span></h2>
-      <p>Nosso projeto usa a Teachable Machine para reconhecer imagens em tempo real usando sua webcam. Ideal para educação, aprendizado e diversão.</p>
-      <button class="start-btn" id="start-btn" onclick="init()">Começar 🚀</button>
+      <div class="eyebrow"><span class="ping"></span> Em tempo real com Teachable Machine</div>
+      <h1>Reconheça emoções com <span>Inteligência Artificial</span></h1>
+      <p>Use sua webcam para descobrir, de forma prática e divertida, como modelos de IA identificam emoções em imagens.
+         Feito para escolas, famílias e curiosos de todas as idades.</p>
+      <div class="hero-actions">
+        <button class="start-btn" id="start-btn" onclick="init()">Começar agora 🚀</button>
+        <button class="ghost-btn" onclick="document.getElementById('modelo').scrollIntoView({behavior:'smooth'})">Ver como funciona</button>
+      </div>
     </div>
     <img src="https://cdn.pixabay.com/photo/2023/04/06/15/11/artificial-intelligence-7904390_1280.jpg" alt="Imagem Principal IA" class="hero-main-image" />
   </section>
 
-  <section class="image-carousel">
+  <section class="image-carousel" aria-label="Galeria de exemplos">
     <div class="image-carousel-track" id="carousel-track">
       <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698697_640.jpg" alt="Circo 1" />
       <img src="https://cdn.pixabay.com/photo/2018/02/20/08/47/circus-3169640_640.jpg" alt="Circo 2" />
@@ -250,10 +239,10 @@
   <main id="modelo">
     <h2>Reconhecimento em Ação 🎥</h2>
     <div class="webcam-section">
-      <div id="webcam-container"></div>
-      <div id="label-container"></div>
+      <div id="webcam-container" aria-live="polite"></div>
+      <div id="label-container" aria-live="polite"></div>
     </div>
-    <div id="instruction" style="margin-top:20px; font-size:1.3em; color: var(--titulo);"></div>
+    <div id="instruction"></div>
   </main>
 
   <audio id="click-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f95c602d48.mp3?filename=click-124467.mp3" preload="auto"></audio>
@@ -272,14 +261,17 @@
     let startTime;
 
     async function init() {
-      clickSound.play();
+      try{
+        clickSound.currentTime = 0;
+        clickSound.play();
+      }catch(e){}
       startBtn.disabled = true;
-      startBtn.innerHTML = <span class="loading-icon"></span> Carregando...;
+      startBtn.innerHTML = `<span class="loading-icon"></span> Carregando...`;
 
       if (typeof tmImage === 'undefined') {
         instruction.textContent = "Erro: modelo não disponível.";
         startBtn.disabled = false;
-        startBtn.innerHTML = "Começar 🚀";
+        startBtn.innerHTML = "Começar agora 🚀";
         return;
       }
 
@@ -296,20 +288,24 @@
 
         const labelContainer = document.getElementById("label-container");
         labelContainer.innerHTML = "";
-        Array.from({ length: model.getTotalClasses() }).forEach(() => labelContainer.appendChild(document.createElement("div")));
+        Array.from({ length: model.getTotalClasses() }).forEach(() => {
+          const el = document.createElement("div");
+          el.textContent = "—";
+          labelContainer.appendChild(el);
+        });
 
         startTime = Date.now();
-        inicioSection.style.display = "none";
+        inicioSection.scrollIntoView({behavior:'smooth'});
         modeloSection.classList.add('active');
 
         instruction.textContent = "Prepare-se! Vamos começar...";
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 900));
         runEmotionTest(webcam, model, labelContainer);
 
       } catch (err) {
-        instruction.textContent = Erro: ${err.message};
+        instruction.textContent = `Erro: ${err.message}`;
         startBtn.disabled = false;
-        startBtn.innerHTML = "Começar 🚀";
+        startBtn.innerHTML = "Começar agora 🚀";
       }
     }
 
@@ -321,7 +317,7 @@
       }
 
       const expected = emotionsToTest[currentEmotionIndex];
-      instruction.textContent = Mostre: ${expected.toUpperCase()};
+      instruction.textContent = `Mostre: ${expected.toUpperCase()}`;
       let countdown = 3;
 
       const countDiv = document.createElement("div");
@@ -329,7 +325,7 @@
       labelContainer.appendChild(countDiv);
 
       const countInterval = setInterval(() => {
-        countDiv.textContent = Capturando em ${countdown}…;
+        countDiv.textContent = `Capturando em ${countdown}…`;
         countdown--;
         if (countdown < 0) clearInterval(countInterval);
       }, 1000);
@@ -340,34 +336,51 @@
       const prediction = await model.predict(webcam.canvas);
 
       labelContainer.innerHTML = "";
-      prediction.forEach(p => labelContainer.innerHTML += <div>${p.className}: ${(p.probability*100).toFixed(2)}%</div>);
+      prediction.forEach(p => {
+        const line = document.createElement("div");
+        line.textContent = `${p.className}: ${(p.probability*100).toFixed(2)}%`;
+        labelContainer.appendChild(line);
+      });
 
       const correct = prediction.some(p => p.className.toLowerCase() === expected && p.probability >= 0.8);
       instruction.textContent = correct
-        ? ✅ "${expected}" reconhecida! +200 pontos.
-        : ❌ "${expected}" não reconhecida.;
+        ? `✅ "${expected}" reconhecida! +200 pontos.`
+        : `❌ "${expected}" não reconhecida.`;
 
       if (correct) score += 200;
       currentEmotionIndex++;
-      setTimeout(() => runEmotionTest(webcam, model, labelContainer), 2000);
+      setTimeout(() => runEmotionTest(webcam, model, labelContainer), 1600);
     }
 
     function showFinalScreen(score, time) {
       document.body.innerHTML = `
-        <header>Resultado Final 🎉</header>
-        <main style="padding:50px; text-align:center;">
-          <h2>Parabéns! Você concluiu.</h2>
-          <p><strong>Pontuação:</strong> ${score} pontos</p>
-          <p><strong>Tempo:</strong> ${time} segundos</p>
-          <p>Obrigado por participar do projeto!</p>
-          <button onclick="location.reload()" class="start-btn" style="margin-top:30px;">Refazer Teste 🔁</button>
+        <header style="
+          width:100%;max-width:1100px;background:#fff;border-radius:24px;
+          box-shadow: var(--shadow); padding:18px 28px; margin:24px auto;">
+          <div style="display:flex;align-items:center;gap:12px;color:#2979ff;font-weight:700;">
+            <span style="width:12px;height:12px;border-radius:999px;background:linear-gradient(135deg,#ff7043,#2979ff);box-shadow:0 0 0 6px rgba(41,121,255,.18)"></span>
+            Resultado Final 🎉
+          </div>
+          <div class="badge" style="float:right;">Obrigado por participar!</div>
+        </header>
+        <main style="padding:36px; text-align:center; background:#fff; max-width:1100px; margin:auto; border-radius:18px; box-shadow: var(--shadow);">
+          <h2 style="font-size:1.8rem; margin-bottom:10px; color:#0b1a34;">Parabéns! Você concluiu.</h2>
+          <p style="font-size:1.1rem; color:#334155;">Aqui está o seu desempenho:</p>
+          <div style="display:flex; gap:16px; justify-content:center; margin:22px 0;">
+            <div style="background:#eef8f0; border:1px solid #cfe9d5; padding:14px 18px; border-radius:14px; font-weight:700; color:#0b5132;">Pontuação: ${score} pts</div>
+            <div style="background:#e8f0ff; border:1px solid #dbe6ff; padding:14px 18px; border-radius:14px; font-weight:700; color:#0b2f8a;">Tempo: ${time} s</div>
+          </div>
+          <button onclick="location.reload()" class="start-btn" style="margin-top:12px;">Refazer Teste 🔁</button>
         </main>`;
     }
 
+    // Carrossel automático
     let idx = 0;
     function slideCarousel() {
+      if(!track) return;
       idx = (idx + 1) % track.children.length;
-      track.style.transform = translateX(${-idx * 220}px);
+      const cardW = track.children[0].getBoundingClientRect().width + 12; // largura + gap
+      track.style.transform = `translateX(${-idx * cardW}px)`;
     }
     setInterval(slideCarousel, 3000);
   </script>
