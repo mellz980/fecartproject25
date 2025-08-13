@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -274,7 +275,7 @@
     async function init() {
       clickSound.play();
       startBtn.disabled = true;
-      startBtn.innerHTML = <span class="loading-icon"></span> Carregando...;
+      startBtn.innerHTML = `<span class="loading-icon"></span> Carregando...`;
 
       if (typeof tmImage === 'undefined') {
         instruction.textContent = "Erro: modelo não disponível.";
@@ -307,7 +308,7 @@
         runEmotionTest(webcam, model, labelContainer);
 
       } catch (err) {
-        instruction.textContent = Erro: ${err.message};
+        instruction.textContent = `Erro: ${err.message}`;
         startBtn.disabled = false;
         startBtn.innerHTML = "Começar 🚀";
       }
@@ -321,7 +322,7 @@
       }
 
       const expected = emotionsToTest[currentEmotionIndex];
-      instruction.textContent = Mostre: ${expected.toUpperCase()};
+      instruction.textContent = `Mostre: ${expected.toUpperCase()}`;
       let countdown = 3;
 
       const countDiv = document.createElement("div");
@@ -329,7 +330,7 @@
       labelContainer.appendChild(countDiv);
 
       const countInterval = setInterval(() => {
-        countDiv.textContent = Capturando em ${countdown}…;
+        countDiv.textContent = `Capturando em ${countdown}…`;
         countdown--;
         if (countdown < 0) clearInterval(countInterval);
       }, 1000);
@@ -340,12 +341,12 @@
       const prediction = await model.predict(webcam.canvas);
 
       labelContainer.innerHTML = "";
-      prediction.forEach(p => labelContainer.innerHTML += <div>${p.className}: ${(p.probability*100).toFixed(2)}%</div>);
+      prediction.forEach(p => labelContainer.innerHTML += `<div>${p.className}: ${(p.probability*100).toFixed(2)}%</div>`);
 
       const correct = prediction.some(p => p.className.toLowerCase() === expected && p.probability >= 0.8);
       instruction.textContent = correct
-        ? ✅ "${expected}" reconhecida! +200 pontos.
-        : ❌ "${expected}" não reconhecida.;
+        ? `✅ "${expected}" reconhecida! +200 pontos.`
+        : `❌ "${expected}" não reconhecida.`;
 
       if (correct) score += 200;
       currentEmotionIndex++;
@@ -367,12 +368,13 @@
     let idx = 0;
     function slideCarousel() {
       idx = (idx + 1) % track.children.length;
-      track.style.transform = translateX(${-idx * 220}px);
+      track.style.transform = `translateX(${-idx * 220}px)`;
     }
     setInterval(slideCarousel, 3000);
   </script>
 </body>
 </html>
+
 
 
 
