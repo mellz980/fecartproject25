@@ -1,388 +1,312 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Projeto Reconhecimento por Imagem</title>
+<meta charset="UTF-8" />
+<title>Reconhecimento IA - Profissional</title>
 
-  <!-- TensorFlow.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
 
-  <!-- Fonte moderna -->
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      /* Paleta profissional + divertida */
-      --bg-1:#f6f8fc;
-      --bg-2:#eef1f6;
-      --card:#ffffff;
-      --title:#2979ff;         /* azul vibrante, confiável */
-      --accent:#ff7043;        /* laranja suave, divertido */
-      --accent-hover:#ffb300;  /* amarelo quente no hover */
-      --positive:#43a047;      /* verde para labels/êxito */
-      --text:#2f2f2f;
-      --muted:#6b7280;
-      --ring: rgba(41,121,255,.25);
-      --shadow: 0 10px 25px rgba(16,24,40,.08);
-      --shadow-strong: 0 18px 35px rgba(16,24,40,.14);
-      --radius: 18px;
-    }
+<style>
+:root {
+  --primary: #1f3c88;
+  --secondary: #2ad1a2;
+  --accent: #ff6f3c;
+  --accent-hover: #ffd93b;
+  --bg: #f0f8ff;
+  --text: #333;
+  --card-bg: #fff;
+  --label: #2ad1a2;
+}
 
-    *{ box-sizing:border-box; margin:0; padding:0; }
-    html,body{ height:100%; }
-    body{
-      font-family:'Fredoka',sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 10% -10%, #ffffff 0%, transparent 60%),
-        radial-gradient(1000px 600px at 110% 10%, #ffffff 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg-1), var(--bg-2));
-      padding: 24px 20px 48px;
-      display:flex; flex-direction:column; align-items:center;
-    }
+* { box-sizing: border-box; margin:0; padding:0; font-family: 'Fredoka', sans-serif; }
+body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height:100vh; }
 
-    /* Header Pro com barra superior */
-    header{
-      width:100%;
-      max-width:1100px;
-      background:var(--card);
-      border-radius: calc(var(--radius) + 6px);
-      box-shadow: var(--shadow);
-      padding: 18px 28px;
-      display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:16px; z-index:10;
-    }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      font-weight:700; font-size:1.25rem; color:var(--title);
-      letter-spacing:.2px;
-    }
-    .brand .dot{
-      width:12px; height:12px; border-radius:999px;
-      background:linear-gradient(135deg,var(--accent),var(--title));
-      box-shadow:0 0 0 6px var(--ring);
-    }
-    .badge{
-      font-size:.85rem; color:#0f172a;
-      background:linear-gradient(135deg,#e8f0ff,#fff7e6);
-      padding:6px 12px; border-radius:999px; border:1px solid #e5e7eb;
-    }
+header {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 25px 0;
+  text-align: center;
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
 
-    /* Hero */
-    .hero-section{
-      margin-top:20px;
-      width:100%; max-width:1100px;
-      background:var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 40px;
-      display:flex; gap:40px; align-items:center;
-    }
-    .hero-text{ flex:1; }
-    .eyebrow{
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:.9rem; color:var(--muted); margin-bottom:10px;
-    }
-    .eyebrow .ping{
-      width:8px; height:8px; border-radius:999px; background:var(--accent);
-      box-shadow:0 0 0 6px rgba(255,112,67,.18);
-    }
-    .hero-text h1{
-      font-size:2.4rem; line-height:1.15; color:#0b1a34; margin-bottom:12px;
-    }
-    .hero-text h1 span{ color:var(--title); }
-    .hero-text p{
-      font-size:1.1rem; color:#334155; margin-bottom:20px;
-    }
-    .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
-    .start-btn{
-      background:var(--accent); color:#fff; border:none;
-      padding:14px 28px; font-size:1.05rem; font-weight:700;
-      border-radius: 999px; cursor:pointer;
-      box-shadow: var(--shadow);
-      transition: transform .18s ease, box-shadow .18s ease, background .25s ease;
-    }
-    .start-btn:hover{ background:var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-strong); }
-    .ghost-btn{
-      background:transparent; color:var(--title);
-      border:2px solid rgba(41,121,255,.25);
-      padding:12px 20px; border-radius: 999px; font-weight:700; cursor:pointer;
-      transition: border-color .25s ease, transform .18s ease;
-    }
-    .ghost-btn:hover{ border-color: var(--title); transform: translateY(-1px); }
+/* Hero */
+.hero-section { display: flex; flex-wrap: wrap; justify-content:center; align-items:center; max-width:950px; width:100%; margin-top:30px; background: var(--card-bg); padding:40px; border-radius:30px; box-shadow:0 15px 35px rgba(31,60,136,0.15);}
+.hero-text { flex:1; min-width:280px; }
+.hero-text h2 { font-size:3em; color: var(--primary); margin-bottom:15px; }
+.hero-text h2 span { color: var(--accent); animation: colorpulse 3s infinite alternate; }
+@keyframes colorpulse {0%{color:#ff6f3c;}50%{color:#ffd93b;}100%{color:#2ad1a2;}}
+.hero-text p { font-size:1.3em; margin-bottom:30px; line-height:1.6; }
+#username { font-size:1.4em; padding:12px; border-radius:10px; border:1px solid #ccc; margin-bottom:12px; width:80%; }
+.hero-main-image { max-width:400px; width:100%; height:280px; object-fit:cover; border-radius:25px; box-shadow:0 15px 30px rgba(31,60,136,0.2); transition: transform 0.5s; }
+.hero-main-image:hover { transform: scale(1.05) rotate(-1deg); }
+.start-btn { background: var(--accent); color:#fff; font-size:1.3em; font-weight:700; padding:18px 50px; border-radius:35px; border:none; cursor:pointer; box-shadow:0 10px 20px rgba(255,111,60,0.5); transition: all 0.3s; }
+.start-btn:hover { background: var(--accent-hover); color: var(--primary); transform: scale(1.1); box-shadow:0 12px 25px rgba(255,217,59,0.5); }
 
-    .hero-main-image{
-      max-width:420px; width:100%; height:280px; object-fit:cover;
-      border-radius: calc(var(--radius) + 6px);
-      box-shadow: var(--shadow-strong);
-      outline: 3px solid rgba(41,121,255,.08);
-    }
+/* Ranking */
+#ranking { margin-top:25px; width:100%; max-width:950px; background: var(--card-bg); padding:20px; border-radius:25px; box-shadow:0 15px 35px rgba(31,60,136,0.1); }
+#ranking h3 { text-align:center; margin-bottom:12px; font-size:1.8em; }
+#ranking ol { padding-left:20px; font-size:1.4em; }
+#ranking li { margin-bottom:10px; cursor: pointer; display:flex; justify-content:space-between; align-items:center; }
+#ranking li span { color:red; font-size:0.9em; margin-left:10px; cursor:pointer; }
 
-    /* Carrossel */
-    .image-carousel{
-      width:100%; max-width:1100px; margin:26px auto 0;
-      background:var(--card); border-radius: var(--radius);
-      box-shadow: var(--shadow); overflow:hidden;
-      padding:16px;
-    }
-    .image-carousel-track{
-      display:flex; gap:12px; transition: transform .5s ease; will-change:transform;
-    }
-    .image-carousel img{
-      width:220px; height:140px; object-fit:cover; border-radius:14px;
-      box-shadow: 0 6px 18px rgba(13, 31, 64, .10);
-      border:1px solid #e8eaee;
-      transition: transform .35s ease, box-shadow .35s ease, outline-color .25s ease, filter .35s ease;
-      outline:3px solid transparent;
-    }
-    .image-carousel img:hover{
-      transform: translateY(-4px) rotate(-.6deg) scale(1.03);
-      box-shadow: 0 14px 28px rgba(13, 31, 64, .18);
-      outline-color: rgba(255,179,0,.25);
-      filter: saturate(1.1);
-    }
+/* Carrossel */
+.image-carousel { width:100%; max-width:950px; margin:26px auto 0; background:var(--card-bg); border-radius:25px; box-shadow:0 10px 25px rgba(31,60,136,0.1); overflow:hidden; position:relative; }
+.image-carousel-track { display:flex; transition: transform 0.8s ease; }
+.image-carousel img { width:220px; height:140px; object-fit:cover; margin:5px; border-radius:14px; box-shadow:0 6px 18px rgba(13,31,64,.1); transition: all 0.3s; filter: blur(2px); opacity:0.7; }
+.image-carousel img.active { filter: blur(0); opacity:1; transform: scale(1.05); }
+.carousel-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(31,60,136,.2); border:none; padding:10px; cursor:pointer; border-radius:50%; font-size:1.5rem; color:#fff; transition:0.2s; }
+.carousel-btn:hover { background: rgba(31,60,136,.4); }
+.carousel-prev { left:10px; }
+.carousel-next { right:10px; }
 
-    /* Bloco do modelo */
-    #modelo{
-      display:none; margin-top:28px;
-      width:100%; max-width:1100px; background:var(--card);
-      border-radius: var(--radius); padding:28px; box-shadow: var(--shadow);
-    }
-    #modelo.active{ display:block; }
-    #modelo h2{
-      font-size:1.6rem; color:#0b1a34; margin-bottom:18px; text-align:center;
-    }
-    .webcam-section{
-      display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start;
-    }
-    #webcam-container{
-      border:2px dashed rgba(67,160,71,.45);
-      padding:12px; border-radius:16px; background: #f3faf4;
-      box-shadow: 0 8px 20px rgba(67,160,71,.10);
-    }
-    canvas{
-      border-radius:14px; width:560px !important; height:360px !important; display:block;
-      box-shadow: 0 10px 24px rgba(16,24,40,.10);
-    }
-    #label-container{
-      min-width:260px; max-width:320px;
-      display:flex; flex-direction:column; gap:12px; padding-top:6px;
-      color:#0f5132;
-    }
-    #label-container div{
-      background:#eef8f0; color:#0b5132; border:1px solid #cfe9d5;
-      padding:12px 14px; border-radius:14px; font-weight:600; letter-spacing:.2px;
-      box-shadow: 0 2px 8px rgba(16,24,40,.06);
-    }
+/* Webcam e painel */
+#modelo { display:none; margin-top:50px; max-width:950px; width:100%; background:var(--card-bg); padding:40px; border-radius:25px; box-shadow:0 15px 35px rgba(31,60,136,0.1); position:relative; }
+#modelo.active { display:flex; flex-direction:column; align-items:center; gap:30px; }
+.webcam-section { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:30px; width:100%; position:relative; }
+#webcam-container { border:4px dashed var(--label); padding:10px; border-radius:25px; background:#e6f9f6; box-shadow:0 10px 25px rgba(42,209,162,0.3); transition: all 0.5s ease; display:flex; justify-content:center; align-items:center;}
+#webcam-container.correct { border-color:#2ad13f; box-shadow:0 12px 30px rgba(42,209,63,0.5);}
+#webcam-container.wrong { border-color:#ff3c3c; box-shadow:0 12px 30px rgba(255,60,60,0.5);}
+#webcam-container.capturing { border-color:#ffd93b; box-shadow:0 12px 30px rgba(255,217,59,0.5);}
+canvas { border-radius:20px; width:560px !important; height:360px !important; }
+.emotion-panel { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:20px; min-width:220px; position:relative; }
+#current-emotion { font-size:3em; font-weight:700; color:var(--accent); text-align:center; }
+#score-display { font-size:1.5em; font-weight:600; color:var(--primary); }
 
-    #instruction{
-      margin-top:18px; font-size:1.1rem; color:#0b1a34; text-align:center;
-      background:linear-gradient(135deg,#e8f0ff,#fff);
-      border:1px solid #e6ebf5; padding:12px 16px; border-radius:12px;
-      box-shadow: 0 6px 18px rgba(16,24,40,.06);
-    }
+/* Feedback grande */
+#feedback { font-size:2em; font-weight:700; transition: all 0.5s; text-align:center; height:60px; }
+#feedback.correct { color:#2ad13f; animation: pop 0.6s; }
+#feedback.wrong { color:#ff3c3c; animation: pop 0.6s; }
+@keyframes pop { 0%{transform:scale(1);}50%{transform:scale(1.3);}100%{transform:scale(1);} }
 
-    /* Loading */
-    .loading-icon{
-      border:4px solid #eef2ff; border-top:4px solid var(--accent);
-      border-radius:50%; width:18px; height:18px; animation:spin 1s linear infinite;
-      display:inline-block; vertical-align:middle; margin-right:8px;
-    }
-    @keyframes spin{ 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+/* Barra de progresso */
+#progress-container { width:100%; max-width:950px; background:#ddd; border-radius:20px; overflow:hidden; margin-top:15px; }
+#progress-bar { width:0%; height:18px; background:var(--accent); transition: width 0.5s ease; border-radius:20px; }
 
-    /* Responsividade */
-    @media (max-width: 900px){
-      .hero-section{ flex-direction:column; text-align:center; padding:28px; }
-      .hero-main-image{ height:220px; }
-    }
-    @media (max-width: 640px){
-      canvas{ width:100% !important; height:auto !important; }
-      .image-carousel img{ width:180px; height:120px; }
-    }
-  </style>
+/* Resultado final */
+#final-screen { display:none; flex-direction:column; align-items:center; justify-content:center; gap:25px; text-align:center; padding:50px; }
+#final-screen.active { display:flex; animation:fadeIn 1s ease forwards; }
+#final-screen h2 { font-size:3em; color:var(--primary); }
+#final-screen p { font-size:1.5em; color:var(--secondary); }
+#final-screen .start-btn { padding:20px 60px; font-size:1.5em; }
+
+@keyframes fadeIn { from {opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
+
+@media(max-width:768px){ .webcam-section{flex-direction:column;} canvas{width:100% !important;height:auto !important;} }
+</style>
 </head>
+
 <body>
+<header>Reconhecimento IA 🤖</header>
 
-  <header>
-    <div class="brand">
-      <span class="dot"></span>
-      Reconhecimento IA
-    </div>
-    <div class="badge">Aprender se divertindo 🎯</div>
-  </header>
+<section class="hero-section" id="inicio">
+<div class="hero-text">
+  <h2>Sinta o poder da <span>inteligência artificial</span> 💡</h2>
+  <p>Nosso projeto usa a Teachable Machine para reconhecer imagens em tempo real usando sua webcam. Ideal para educação, aprendizado e diversão.</p>
+  <input type="text" id="username" placeholder="Digite seu nome" />
+  <button class="start-btn" id="start-btn" onclick="init()">Começar 🚀</button>
+</div>
+<img src="https://cdn.pixabay.com/photo/2023/04/06/15/11/artificial-intelligence-7904390_1280.jpg" alt="Imagem Principal IA" class="hero-main-image" />
+</section>
 
-  <section class="hero-section" id="inicio">
-    <div class="hero-text">
-      <div class="eyebrow"><span class="ping"></span> Em tempo real com Teachable Machine</div>
-      <h1>Reconheça emoções com <span>Inteligência Artificial</span></h1>
-      <p>Use sua webcam para descobrir, de forma prática e divertida, como modelos de IA identificam emoções em imagens.
-         Feito para escolas, famílias e curiosos de todas as idades.</p>
-      <div class="hero-actions">
-        <button class="start-btn" id="start-btn" onclick="init()">Começar agora 🚀</button>
-        <button class="ghost-btn" onclick="document.getElementById('modelo').scrollIntoView({behavior:'smooth'})">Ver como funciona</button>
-      </div>
-    </div>
-    <img src="https://cdn.pixabay.com/photo/2023/04/06/15/11/artificial-intelligence-7904390_1280.jpg" alt="Imagem Principal IA" class="hero-main-image" />
-  </section>
+<div id="ranking">
+  <h3>Ranking</h3>
+  <ol id="ranking-list"></ol>
+</div>
 
-  <section class="image-carousel" aria-label="Galeria de exemplos">
-    <div class="image-carousel-track" id="carousel-track">
-      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698697_640.jpg" alt="Circo 1" />
-      <img src="https://cdn.pixabay.com/photo/2018/02/20/08/47/circus-3169640_640.jpg" alt="Circo 2" />
-      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698688_640.jpg" alt="Circo 3" />
-      <img src="https://cdn.pixabay.com/photo/2016/10/12/20/42/clown-1736049_640.jpg" alt="Circo 4" />
-      <img src="https://cdn.pixabay.com/photo/2017/08/30/07/55/circus-2698699_640.jpg" alt="Circo 5" />
-    </div>
-  </section>
+<main id="modelo">
+<div class="webcam-section">
+  <div id="webcam-container"></div>
+  <div class="emotion-panel">
+    <div id="current-emotion">😄 ALEGRIA</div>
+    <div id="score-display">Pontuação: 0</div>
+    <div id="feedback"></div>
+  </div>
+</div>
+<div id="progress-container"><div id="progress-bar"></div></div>
+</main>
 
-  <main id="modelo">
-    <h2>Reconhecimento em Ação 🎥</h2>
-    <div class="webcam-section">
-      <div id="webcam-container" aria-live="polite"></div>
-      <div id="label-container" aria-live="polite"></div>
-    </div>
-    <div id="instruction"></div>
-  </main>
+<div id="final-screen">
+  <h2>🎉 UAU! Você concluiu! 🎉</h2>
+  <p id="final-score">Pontuação final: 0</p>
+  <p id="final-time">Tempo total: 0 segundos</p>
+  <div class="image-carousel" id="final-carousel">
+    <button class="carousel-btn carousel-prev">&#10094;</button>
+    <div class="image-carousel-track" id="final-carousel-track"></div>
+    <button class="carousel-btn carousel-next">&#10095;</button>
+  </div>
+  <button class="start-btn" onclick="location.reload()">Refazer Teste 🔁</button>
+</div>
 
-  <audio id="click-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f95c602d48.mp3?filename=click-124467.mp3" preload="auto"></audio>
+<audio id="click-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f95c602d48.mp3?filename=click-124467.mp3" preload="auto"></audio>
 
-  <script>
-    const clickSound = document.getElementById('click-sound');
-    const startBtn = document.getElementById('start-btn');
-    const modeloSection = document.getElementById('modelo');
-    const inicioSection = document.getElementById('inicio');
-    const instruction = document.getElementById('instruction');
-    const track = document.getElementById('carousel-track');
+<script>
+const clickSound = document.getElementById('click-sound');
+const startBtn = document.getElementById('start-btn');
+const modeloSection = document.getElementById('modelo');
+const inicioSection = document.getElementById('inicio');
+const currentEmotion = document.getElementById('current-emotion');
+const scoreDisplay = document.getElementById('score-display');
+const feedback = document.getElementById('feedback');
+const webcamContainer = document.getElementById('webcam-container');
+const finalScreen = document.getElementById('final-screen');
+const finalScore = document.getElementById('final-score');
+const finalTime = document.getElementById('final-time');
+const progressBar = document.getElementById('progress-bar');
+const usernameInput = document.getElementById('username');
+const rankingList = document.getElementById('ranking-list');
 
-    const emotionsToTest = ["alegria", "tristeza", "raiva", "nojo", "medo"];
-    let currentEmotionIndex = 0;
-    let score = 0;
-    let startTime;
+const finalCarouselTrack = document.getElementById('final-carousel-track');
+const carouselPrev = document.querySelector('.carousel-prev');
+const carouselNext = document.querySelector('.carousel-next');
 
-    async function init() {
-      try{
-        clickSound.currentTime = 0;
-        clickSound.play();
-      }catch(e){}
-      startBtn.disabled = true;
-      startBtn.innerHTML = `<span class="loading-icon"></span> Carregando...`;
+let username = '';
+const emotionsToTest = ["alegria","tristeza","raiva","nojo","medo"];
+const emotionEmojis = { alegria:"😄", tristeza:"😢", raiva:"😡", nojo:"🤢", medo:"😱"};
+let currentEmotionIndex = 0, score = 0, startTime;
+let capturedImages = [];
 
-      if (typeof tmImage === 'undefined') {
-        instruction.textContent = "Erro: modelo não disponível.";
-        startBtn.disabled = false;
-        startBtn.innerHTML = "Começar agora 🚀";
-        return;
-      }
+async function init(){
+  if(!usernameInput.value.trim()){ alert("Digite seu nome para começar!"); return; }
+  username = usernameInput.value.trim();
+  clickSound.play();
+  startBtn.disabled=true; startBtn.innerHTML=`Carregando...`;
 
-      try {
-        const URL = "https://mellz980.github.io/projetofecart2025/";
-        const model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-        const webcam = new tmImage.Webcam(560, 360, true);
-        await webcam.setup();
-        await webcam.play();
+  try{
+    const URL="https://mellz980.github.io/projetofecart2025/";
+    const model=await tmImage.load(URL+"model.json", URL+"metadata.json");
+    const webcam=new tmImage.Webcam(560,360,true);
+    await webcam.setup(); await webcam.play();
 
-        const webcamContainer = document.getElementById("webcam-container");
-        webcamContainer.innerHTML = "";
-        webcamContainer.appendChild(webcam.canvas);
+    webcamContainer.innerHTML=""; webcamContainer.appendChild(webcam.canvas);
+    inicioSection.style.display="none"; modeloSection.classList.add('active');
+    startTime=Date.now();
+    currentEmotionIndex=0; score=0; capturedImages=[];
+    progressBar.style.width = '0%';
 
-        const labelContainer = document.getElementById("label-container");
-        labelContainer.innerHTML = "";
-        Array.from({ length: model.getTotalClasses() }).forEach(() => {
-          const el = document.createElement("div");
-          el.textContent = "—";
-          labelContainer.appendChild(el);
-        });
+    runEmotionTest(webcam, model);
+  }catch(err){
+    alert("Erro: "+err.message);
+    startBtn.disabled=false; startBtn.innerHTML="Começar 🚀";
+  }
+}
 
-        startTime = Date.now();
-        inicioSection.scrollIntoView({behavior:'smooth'});
-        modeloSection.classList.add('active');
+async function runEmotionTest(webcam, model){
+  if(currentEmotionIndex>=emotionsToTest.length){
+    const totalTime=Math.floor((Date.now()-startTime)/1000);
+    showFinalScreen(totalTime);
+    saveRanking();
+    return;
+  }
 
-        instruction.textContent = "Prepare-se! Vamos começar...";
-        await new Promise(r => setTimeout(r, 900));
-        runEmotionTest(webcam, model, labelContainer);
+  const expected=emotionsToTest[currentEmotionIndex];
+  currentEmotion.textContent = `${emotionEmojis[expected]} ${expected.toUpperCase()}`;
+  feedback.textContent="";
+  webcamContainer.classList.add('capturing');
 
-      } catch (err) {
-        instruction.textContent = `Erro: ${err.message}`;
-        startBtn.disabled = false;
-        startBtn.innerHTML = "Começar agora 🚀";
-      }
-    }
+  await new Promise(r=>setTimeout(r,1500));
+  webcam.update();
+  const prediction=await model.predict(webcam.canvas);
+  const imageData = webcam.canvas.toDataURL('image/png');
+  capturedImages.push({src:imageData, emotion:expected});
 
-    async function runEmotionTest(webcam, model, labelContainer) {
-      if (currentEmotionIndex >= emotionsToTest.length) {
-        const totalTime = Math.floor((Date.now() - startTime) / 1000);
-        showFinalScreen(score, totalTime);
-        return;
-      }
+  const correct = prediction.some(p=>p.className.toLowerCase()===expected && p.probability>=0.8);
 
-      const expected = emotionsToTest[currentEmotionIndex];
-      instruction.textContent = `Mostre: ${expected.toUpperCase()}`;
-      let countdown = 3;
+  if(correct){
+    feedback.textContent = `✅ Acertou! +200 pontos`;
+    feedback.classList.add('correct'); feedback.classList.remove('wrong');
+    webcamContainer.classList.add('correct'); webcamContainer.classList.remove('wrong');
+    score+=200;
+  } else {
+    feedback.textContent = `❌ Errou!`;
+    feedback.classList.add('wrong'); feedback.classList.remove('correct');
+    webcamContainer.classList.add('wrong'); webcamContainer.classList.remove('correct');
+  }
 
-      const countDiv = document.createElement("div");
-      labelContainer.innerHTML = "";
-      labelContainer.appendChild(countDiv);
+  scoreDisplay.textContent = "Pontuação: "+score;
+  progressBar.style.width = `${Math.floor((currentEmotionIndex+1)/emotionsToTest.length*100)}%`;
+  webcamContainer.classList.remove('capturing');
 
-      const countInterval = setInterval(() => {
-        countDiv.textContent = `Capturando em ${countdown}…`;
-        countdown--;
-        if (countdown < 0) clearInterval(countInterval);
-      }, 1000);
+  setTimeout(()=>{
+    feedback.textContent="";
+    webcamContainer.classList.remove('correct','wrong');
+    currentEmotionIndex++;
+    runEmotionTest(webcam, model);
+  },2000);
+}
 
-      await new Promise(r => setTimeout(r, 4000));
+function showFinalScreen(totalTime){
+  modeloSection.style.display='none';
+  finalScreen.classList.add('active');
+  finalScore.textContent="Pontuação final: "+score+" pontos";
+  finalTime.textContent="Tempo total: "+totalTime+" segundos";
 
-      webcam.update();
-      const prediction = await model.predict(webcam.canvas);
+  finalCarouselTrack.innerHTML='';
+  capturedImages.forEach((img,i)=>{
+    const div = document.createElement('div');
+    div.style.textAlign='center';
+    const imageEl = document.createElement('img');
+    imageEl.src=img.src; imageEl.style.width='220px';
+    imageEl.classList.add(i===0?'active':'');
+    const label = document.createElement('div'); label.textContent=img.emotion.toUpperCase(); 
+    div.appendChild(imageEl); div.appendChild(label);
+    finalCarouselTrack.appendChild(div);
+  });
+}
 
-      labelContainer.innerHTML = "";
-      prediction.forEach(p => {
-        const line = document.createElement("div");
-        line.textContent = `${p.className}: ${(p.probability*100).toFixed(2)}%`;
-        labelContainer.appendChild(line);
-      });
+// Ranking localStorage + remover
+function saveRanking(){
+  let ranking = JSON.parse(localStorage.getItem('ranking')||'[]');
+  ranking.push({name:username, score:score});
+  ranking.sort((a,b)=>b.score-a.score);
+  localStorage.setItem('ranking', JSON.stringify(ranking.slice(0,5)));
+  renderRanking();
+}
 
-      const correct = prediction.some(p => p.className.toLowerCase() === expected && p.probability >= 0.8);
-      instruction.textContent = correct
-        ? `✅ "${expected}" reconhecida! +200 pontos.`
-        : `❌ "${expected}" não reconhecida.`;
+function renderRanking(){
+  let ranking = JSON.parse(localStorage.getItem('ranking')||'[]');
+  rankingList.innerHTML='';
+  ranking.forEach((item,i)=>{
+    const li = document.createElement('li');
+    li.textContent=`${i+1}º - ${item.name}: ${item.score} pts`;
+    const removeSpan = document.createElement('span');
+    removeSpan.textContent='[remover]';
+    removeSpan.onclick = ()=>{
+      ranking.splice(i,1);
+      localStorage.setItem('ranking', JSON.stringify(ranking));
+      renderRanking();
+    };
+    li.appendChild(removeSpan);
+    rankingList.appendChild(li);
+  });
+}
+renderRanking();
 
-      if (correct) score += 200;
-      currentEmotionIndex++;
-      setTimeout(() => runEmotionTest(webcam, model, labelContainer), 1600);
-    }
+// Carrossel final com loop infinito
+let idx = 0;
+function updateCarousel(n){
+  const items = finalCarouselTrack.children;
+  if(!items.length) return;
+  idx = (n+items.length)%items.length;
+  const offset = -idx*230;
+  finalCarouselTrack.style.transform = `translateX(${offset}px)`;
+  // marcar central
+  for(let i=0;i<items.length;i++){
+    const img = items[i].querySelector('img');
+    img.classList.toggle('active',i===idx);
+  }
+}
+carouselPrev.onclick = ()=>{ updateCarousel(idx-1); clickSound.play(); };
+carouselNext.onclick = ()=>{ updateCarousel(idx+1); clickSound.play(); };
+setInterval(()=>{ updateCarousel(idx+1); },4000);
 
-    function showFinalScreen(score, time) {
-      document.body.innerHTML = `
-        <header style="
-          width:100%;max-width:1100px;background:#fff;border-radius:24px;
-          box-shadow: var(--shadow); padding:18px 28px; margin:24px auto;">
-          <div style="display:flex;align-items:center;gap:12px;color:#2979ff;font-weight:700;">
-            <span style="width:12px;height:12px;border-radius:999px;background:linear-gradient(135deg,#ff7043,#2979ff);box-shadow:0 0 0 6px rgba(41,121,255,.18)"></span>
-            Resultado Final 🎉
-          </div>
-          <div class="badge" style="float:right;">Obrigado por participar!</div>
-        </header>
-        <main style="padding:36px; text-align:center; background:#fff; max-width:1100px; margin:auto; border-radius:18px; box-shadow: var(--shadow);">
-          <h2 style="font-size:1.8rem; margin-bottom:10px; color:#0b1a34;">Parabéns! Você concluiu.</h2>
-          <p style="font-size:1.1rem; color:#334155;">Aqui está o seu desempenho:</p>
-          <div style="display:flex; gap:16px; justify-content:center; margin:22px 0;">
-            <div style="background:#eef8f0; border:1px solid #cfe9d5; padding:14px 18px; border-radius:14px; font-weight:700; color:#0b5132;">Pontuação: ${score} pts</div>
-            <div style="background:#e8f0ff; border:1px solid #dbe6ff; padding:14px 18px; border-radius:14px; font-weight:700; color:#0b2f8a;">Tempo: ${time} s</div>
-          </div>
-          <button onclick="location.reload()" class="start-btn" style="margin-top:12px;">Refazer Teste 🔁</button>
-        </main>`;
-    }
-
-    // Carrossel automático
-    let idx = 0;
-    function slideCarousel() {
-      if(!track) return;
-      idx = (idx + 1) % track.children.length;
-      const cardW = track.children[0].getBoundingClientRect().width + 12; // largura + gap
-      track.style.transform = `translateX(${-idx * cardW}px)`;
-    }
-    setInterval(slideCarousel, 3000);
-  </script>
+</script>
 </body>
 </html>
